@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Brand colors */
+  --color-primary: #2563EB;
+  --color-primary-dark: #1D4ED8;
+  --color-primary-light: #3B82F6;
+  --color-success: #22C55E;
+  --color-success-light: #4ADE80;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-danger-light: #F87171;
+  --color-purple: #7C3AED;
+
+  /* Dark navy theme */
+  --color-navy-950: #06091A;
+  --color-navy-900: #0A0F28;
+  --color-navy-800: #0D1533;
+  --color-navy-700: #111D40;
+  --color-navy-600: #1A2850;
+  --color-navy-500: #1E3A6E;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  
+  body {
+    background-color: #06091A;
+    color: #F1F5F9;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1E3A6E; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #2563EB; }
+
+/* ── Card base ──────────────────────────────────────────────────────────────── */
+.crm-card {
+  background: #0D1533;
+  border: 1px solid #1A2850;
+  border-radius: 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.crm-card:hover {
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.08);
+}
+
+/* ── Sidebar active link ─────────────────────────────────────────────────────── */
+.sidebar-active {
+  background: linear-gradient(90deg, rgba(37,99,235,0.25) 0%, rgba(37,99,235,0.08) 100%);
+  border-left: 3px solid #2563EB;
+}
+
+/* ── KPI card glow ──────────────────────────────────────────────────────────── */
+.kpi-card {
+  background: #0D1533;
+  border: 1px solid #1A2850;
+  border-radius: 16px;
+  transition: all 0.25s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: #1E3A6E;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+
+/* ── Chart grid lines fix ─────────────────────────────────────────────────── */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #1A2850 !important;
+}
+
+/* ── Pulse skeleton ─────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #0D1533 25%, #1A2850 50%, #0D1533 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* ── Heatmap cell ────────────────────────────────────────────────────────────── */
+.heat-cell {
+  transition: transform 0.1s ease;
+}
+.heat-cell:hover { transform: scale(1.4); }
+
+/* ── Funnel trapezoid ───────────────────────────────────────────────────────── */
+.funnel-bar {
+  transition: all 0.4s ease;
+  clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+}
+
+/* ── Top bar ────────────────────────────────────────────────────────────────── */
+.topbar {
+  background: #0A0F28;
+  border-bottom: 1px solid #1A2850;
+}
+
+/* ── Gantt bar ──────────────────────────────────────────────────────────────── */
+.gantt-bar {
+  border-radius: 4px;
+  height: 18px;
+  transition: opacity 0.2s ease;
+}
+.gantt-bar:hover { opacity: 0.85; }
