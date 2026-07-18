@@ -68,8 +68,12 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow server-to-server requests (no Origin header) and whitelisted origins
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow server-to-server, whitelisted, or any Vercel domain
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app')
+    ) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy: Origin '${origin}' is not allowed`));
