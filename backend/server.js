@@ -21,12 +21,16 @@ dotenv.config();
 //    Prevents deploying with missing configuration accidentally
 // ─────────────────────────────────────────────────────────────
 const checkRequiredEnvVars = () => {
-  const required = ['MONGODB_URI', 'JWT_SECRET', 'PORT'];
+  const required = ['JWT_SECRET', 'PORT'];
   const missing = required.filter((key) => !process.env[key]);
+
+  if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
+    missing.push('MONGODB_URI or DATABASE_URL');
+  }
 
   if (missing.length > 0) {
     console.error(`[FATAL] Missing required environment variables: ${missing.join(', ')}`);
-    console.error('[FATAL] Server cannot start. Please check your .env file.');
+    console.error('[FATAL] Server cannot start. Please set MONGODB_URI or DATABASE_URL, JWT_SECRET, and PORT.');
     process.exit(1);
   }
 };
@@ -166,6 +170,14 @@ const startServer = async () => {
   const server = app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT} in ${NODE_ENV} mode`);
     console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+  });
+
+  server.on('error', (error) => {
+    console.error(`Server listen error: ${error.message}`);
+    if (error.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Railway should provide a unique PORT env var.`);
+    }
+    process.exit(1);
   });
 
   // ─────────────────────────────────────────────────────────────
