@@ -1,6 +1,7 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import { LeadProvider } from './context/LeadContext';
 import { ThemeProvider } from './context/ThemeContext';
 import App from './App';
@@ -8,12 +9,15 @@ import './index.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <LeadProvider>
-      <ThemeProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ThemeProvider>
-    </LeadProvider>
+    <BrowserRouter>
+      {/* AuthProvider must wrap LeadProvider and App so useAuth() is available everywhere */}
+      <AuthProvider>
+        <LeadProvider>
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
+        </LeadProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>
 );

@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Menu, Plus, Bell, Sun, Moon } from 'lucide-react';
+import { Menu, Plus, Bell, Sun, Moon, LogOut } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 
 const PAGE_TITLES = {
   '/': 'Dashboard Overview',
@@ -17,8 +18,19 @@ const TopBar = memo(({ onMenuToggle }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
 
   const title = PAGE_TITLES[location.pathname] || 'Startup CRM Lite';
+
+  // User initials for avatar
+  const initials = user?.name
+    ? user.name
+        .split(' ')
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'U';
 
   const handleMenuToggle = () => {
     if (onMenuToggle) onMenuToggle();
@@ -58,18 +70,31 @@ const TopBar = memo(({ onMenuToggle }) => {
           {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
-        {/* User avatar */}
-        <div className="w-[44px] h-[44px] sm:w-9 sm:h-9 rounded-lg bg-primary flex items-center justify-center text-white text-xs font-extrabold shadow shrink-0 cursor-pointer">
-          SK
+        {/* User avatar with initials */}
+        <div
+          title={user?.name || 'User'}
+          className="w-[44px] h-[44px] sm:w-9 sm:h-9 rounded-lg bg-primary flex items-center justify-center text-white text-xs font-extrabold shadow shrink-0 cursor-default select-none"
+        >
+          {initials}
         </div>
 
         {/* Notifications */}
-        <button 
+        <button
           className="p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors relative min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="View notifications"
         >
           <Bell size={18} />
           <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-danger" />
+        </button>
+
+        {/* Logout */}
+        <button
+          onClick={logout}
+          className="p-2.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-950/30 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          aria-label="Logout"
+          title="Logout"
+        >
+          <LogOut size={18} />
         </button>
       </div>
     </header>

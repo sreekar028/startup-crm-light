@@ -1,72 +1,93 @@
-import React, { createContext, useContext, useCallback, useMemo } from 'react';
-import useLocalStorage from '../hooks/useLocalStorage';
-import { sampleLeads } from '../data/sampleLeads';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import * as leadService from '../services/leadService.js';
+import toast from 'react-hot-toast';
 
-// Create the Context for Leads
 const LeadContext = createContext(null);
 
 /**
- * LeadProvider component that wraps the React application and provides
- * global state for managing sales leads.
+ * LeadProvider — manages the global leads state by wiring
+ * all CRUD operations to the Express REST API via leadService.
  */
 export function LeadProvider({ children }) {
-  // Initialize state with useLocalStorage, defaulting to sampleLeads if empty
-  const [leads, setLeads] = useLocalStorage('startup-crm-leads', sampleLeads);
+  const [leads, setLeads] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 100, pages: 1 });
 
   /**
-   * Adds a new lead to the database.
-   * Generates a unique ID and attaches the current timestamp.
-   * 
-   * @param {Object} lead - The lead object to add (name, company, email, phone, status, source)
+   * Fetch all leads (with optional filters).
+   * Replaces the local state with the server response.
    */
-  const addLead = useCallback((lead) => {
-    const newLead = {
-      ...lead,
-      id: `lead-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      createdAt: new Date().toISOString()
-    };
-    setLeads((prevLeads) => [newLead, ...prevLeads]);
-  }, [setLeads]);
+  const fetchLeads = useCallback(async (params = {}) => {
+    setIsLoading(true);
+    try {
+      const result = await leadService.getLeads({ limit: 100, ...params });
+      setLeads(result.data || []);
+      if (result.pagination) {
+        setPagination(result.pagination);
+      }
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to load leads.';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   /**
-   * Updates an existing lead's details.
-   * 
-   * @param {string} id - The ID of the lead to update.
-   * @param {Object} updatedFields - The field-value pairs to update on the lead.
+   * Create a new lead via the API and add it to local state.
    */
-  const updateLead = useCallback((id, updatedFields) => {
-    setLeads((prevLeads) =>
-      prevLeads.map((lead) => (lead.id === id ? { ...lead, ...updatedFields } : lead))
-    );
-  }, [setLeads]);
+  const addLead = useCallback(async (leadData) => {
+    try {
+      const result = await leadService.createLead(leadData);
+      const newLead = result.data;
+      setLeads((prev) => [newLead, ...prev]);
+      return newLead;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to create lead.';
+      toast.error(message);
+      throw err;
+    }
+  }, []);
 
   /**
-   * Deletes a lead by ID.
-   * 
-   * @param {string} id - The ID of the lead to delete.
+   * Update an existing lead via the API and sync local state.
    */
-  const deleteLead = useCallback((id) => {
-    setLeads((prevLeads) => prevLeads.filter((lead) => lead.id !== id));
-  }, [setLeads]);
+  const updateLead = useCallback(async (id, leadData) => {
+    try {
+      const result = await leadService.updateLead(id, leadData);
+      const updatedLead = result.data;
+      setLeads((prev) => prev.map((l) => (l._id === id ? updatedLead : l)));
+      return updatedLead;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to update lead.';
+      toast.error(message);
+      throw err;
+    }
+  }, []);
 
   /**
-   * Finds a lead by its ID.
-   * 
-   * @param {string} id - The ID of the lead to retrieve.
-   * @returns {Object|undefined} The matching lead object or undefined.
+   * Delete a lead via the API and remove from local state.
    */
-  const getLeadById = useCallback((id) => {
-    return leads.find((lead) => lead.id === id);
-  }, [leads]);
+  const deleteLead = useCallback(async (id) => {
+    try {
+      await leadService.deleteLead(id);
+      setLeads((prev) => prev.filter((l) => l._id !== id));
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to delete lead.';
+      toast.error(message);
+      throw err;
+    }
+  }, []);
 
-  // Memoize context value
   const contextValue = useMemo(() => ({
     leads,
+    isLoading,
+    pagination,
+    fetchLeads,
     addLead,
     updateLead,
     deleteLead,
-    getLeadById
-  }), [leads, addLead, updateLead, deleteLead, getLeadById]);
+  }), [leads, isLoading, pagination, fetchLeads, addLead, updateLead, deleteLead]);
 
   return (
     <LeadContext.Provider value={contextValue}>
@@ -76,9 +97,7 @@ export function LeadProvider({ children }) {
 }
 
 /**
- * Custom React hook to consume LeadContext and prevent repetitive useContext calls.
- * 
- * @returns {Object} Lead context values (leads, addLead, updateLead, deleteLead, getLeadById)
+ * Custom hook to consume LeadContext.
  */
 export function useLeads() {
   const context = useContext(LeadContext);
