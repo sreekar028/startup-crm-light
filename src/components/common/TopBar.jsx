@@ -8,6 +8,7 @@ const PAGE_TITLES = {
   '/': 'Dashboard Overview',
   '/leads': 'Leads Management',
   '/analytics': 'Analytics Overview',
+  '/profile': 'Profile Settings',
 };
 
 /**
@@ -37,17 +38,17 @@ const TopBar = memo(({ onMenuToggle }) => {
   };
 
   return (
-    <header className="topbar sticky top-0 z-30 flex items-center justify-between px-4 py-3 lg:px-6">
+    <header className={`sticky top-0 z-30 flex items-center justify-between border-b px-4 py-3 lg:px-6 ${isDarkMode ? 'border-slate-800 bg-slate-900/95 text-slate-100' : 'border-slate-200 bg-white/95 text-slate-900'}`}>
       {/* Left: hamburger + title */}
       <div className="flex items-center gap-2">
         <button
           onClick={handleMenuToggle}
-          className="md:hidden p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className={`md:hidden flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-white/5 hover:text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
           aria-label="Open menu"
         >
           <Menu size={20} />
         </button>
-        <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">{title}</h2>
+        <h2 className={`text-sm font-bold tracking-tight sm:text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{title}</h2>
       </div>
 
       {/* Right: actions */}
@@ -55,7 +56,7 @@ const TopBar = memo(({ onMenuToggle }) => {
         {/* Add Lead CTA */}
         <button
           onClick={() => navigate('/leads', { state: { openModal: true } })}
-          className="flex items-center gap-1 px-3 py-2 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-primary hover:bg-primary-dark rounded-lg shadow transition-all active:scale-95 min-h-[44px] shrink-0"
+          className="flex min-h-[44px] shrink-0 items-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white shadow transition-all hover:bg-primary-dark active:scale-95 sm:px-3.5 sm:py-2"
         >
           <Plus size={14} />
           <span className="hidden sm:inline">New Lead</span>
@@ -64,23 +65,25 @@ const TopBar = memo(({ onMenuToggle }) => {
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-white/5 hover:text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
           aria-label="Toggle theme"
         >
           {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
         {/* User avatar with initials */}
-        <div
+        <button
+          type="button"
+          onClick={() => navigate('/profile')}
           title={user?.name || 'User'}
-          className="w-[44px] h-[44px] sm:w-9 sm:h-9 rounded-lg bg-primary flex items-center justify-center text-white text-xs font-extrabold shadow shrink-0 cursor-default select-none"
+          className="flex h-[44px] w-[44px] shrink-0 select-none items-center justify-center rounded-lg bg-primary text-xs font-extrabold text-white shadow transition hover:opacity-90 sm:h-9 sm:w-9"
         >
           {initials}
-        </div>
+        </button>
 
         {/* Notifications */}
         <button
-          className="p-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors relative min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className={`relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-white/5 hover:text-white' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}
           aria-label="View notifications"
         >
           <Bell size={18} />
@@ -90,7 +93,7 @@ const TopBar = memo(({ onMenuToggle }) => {
         {/* Logout */}
         <button
           onClick={logout}
-          className="p-2.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-950/30 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-red-950/30 hover:text-red-400' : 'text-slate-500 hover:bg-red-50 hover:text-red-500'}`}
           aria-label="Logout"
           title="Logout"
         >

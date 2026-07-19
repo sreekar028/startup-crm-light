@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Leads = lazy(() => import('../pages/Leads'));
 const Analytics = lazy(() => import('../pages/Analytics'));
+const Profile = lazy(() => import('../pages/Profile'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 const Login = lazy(() => import('../pages/Login'));
 const Register = lazy(() => import('../pages/Register'));
@@ -105,6 +106,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <Analytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />

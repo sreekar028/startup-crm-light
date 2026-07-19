@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
@@ -24,12 +26,31 @@
 }
 
 @layer base {
-  html { scroll-behavior: smooth; }
+  :root {
+    color-scheme: light;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
   
   body {
+    min-height: 100vh;
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  html.dark body {
     background-color: #06091A;
     color: #F1F5F9;
-    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 

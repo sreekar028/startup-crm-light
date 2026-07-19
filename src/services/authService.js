@@ -1,5 +1,7 @@
 import api from './api.js';
 
+const unwrapResponse = (response) => response?.data?.data ?? response?.data;
+
 /**
  * Register a new user account.
  * @param {string} name - Full name
@@ -9,7 +11,7 @@ import api from './api.js';
  */
 export const register = async (name, email, password) => {
   const response = await api.post('/auth/register', { name, email, password });
-  return response.data;
+  return unwrapResponse(response);
 };
 
 /**
@@ -20,7 +22,7 @@ export const register = async (name, email, password) => {
  */
 export const login = async (email, password) => {
   const response = await api.post('/auth/login', { email, password });
-  return response.data;
+  return unwrapResponse(response);
 };
 
 /**
@@ -36,7 +38,7 @@ export const logout = () => {
  */
 export const getProfile = async () => {
   const response = await api.get('/auth/profile');
-  return response.data;
+  return unwrapResponse(response);
 };
 
 /**
@@ -46,5 +48,5 @@ export const getProfile = async () => {
  */
 export const updateProfile = async (data) => {
   const response = await api.put('/auth/profile', data);
-  return response.data;
+  return unwrapResponse(response);
 };

@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
       }
       try {
         const result = await authService.getProfile();
-        setUser(result.data);
+        setUser(result);
       } catch (err) {
         // Token invalid or expired — clear it
         localStorage.removeItem('crm-token');
@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
     try {
       const result = await authService.login(email, password);
-      const { token: newToken, user: newUser } = result.data;
+      const { token: newToken, user: newUser } = result;
       localStorage.setItem('crm-token', newToken);
       setToken(newToken);
       setUser(newUser);
@@ -68,7 +68,7 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
     try {
       const result = await authService.register(name, email, password);
-      const { token: newToken, user: newUser } = result.data;
+      const { token: newToken, user: newUser } = result;
       localStorage.setItem('crm-token', newToken);
       setToken(newToken);
       setUser(newUser);
@@ -94,6 +94,23 @@ export function AuthProvider({ children }) {
     navigate('/login');
   }, [navigate]);
 
+  const updateProfile = useCallback(async (data) => {
+    setIsLoading(true);
+    try {
+      const result = await authService.updateProfile(data);
+      const updatedUser = result;
+      setUser(updatedUser);
+      toast.success('Profile updated successfully.');
+      return updatedUser;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Unable to update your profile right now.';
+      toast.error(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const contextValue = useMemo(() => ({
     user,
     token,
@@ -102,7 +119,8 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
-  }), [user, token, isLoading, login, register, logout]);
+    updateProfile,
+  }), [user, token, isLoading, login, register, logout, updateProfile]);
 
   return (
     <AuthContext.Provider value={contextValue}>

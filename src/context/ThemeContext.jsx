@@ -11,13 +11,11 @@ export function ThemeProvider({ children }) {
   // Use custom useLocalStorage hook to persist dark mode state, default to false (light mode)
   const [isDarkMode, setIsDarkMode] = useLocalStorage('startup-crm-theme', false);
 
-  // Sync theme changes with document.documentElement class
+  // Sync theme changes with document.documentElement class and browser color scheme
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    const root = document.documentElement;
+    root.classList.toggle('dark', isDarkMode);
+    root.style.colorScheme = isDarkMode ? 'dark' : 'light';
   }, [isDarkMode]);
 
   // Toggle theme mode
