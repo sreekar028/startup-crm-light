@@ -13,7 +13,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const RevenueChartCard = memo(({ data = [] }) => {
-  const total = data.reduce((s, d) => s + (d.Revenue || 0), 0);
+  const safeData = Array.isArray(data) ? data : [];
+  const total = safeData.reduce((s, d) => s + (Number(d?.Revenue) || 0), 0);
   return (
     <div className="crm-card p-6">
       <div className="flex items-start justify-between mb-4">
@@ -28,7 +29,7 @@ const RevenueChartCard = memo(({ data = [] }) => {
       </div>
       <div className="h-52">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 5, left: -10, bottom: 0 }}>
+          <AreaChart data={safeData} margin={{ top: 10, right: 5, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#22C55E" stopOpacity={0.25} />

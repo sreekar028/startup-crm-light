@@ -12,7 +12,8 @@ export function LeadProvider({ children }) {
   const [leads, setLeads] = useState(() => {
     try {
       const savedLeads = localStorage.getItem('startup-crm-leads');
-      return savedLeads ? JSON.parse(savedLeads) : [];
+      const parsed = savedLeads ? JSON.parse(savedLeads) : [];
+      return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
       console.warn('Unable to read cached leads:', error);
       return [];
@@ -37,7 +38,10 @@ export function LeadProvider({ children }) {
     setIsLoading(true);
     try {
       const result = await leadService.getLeads({ limit: 100, ...params });
-      const nextLeads = result.data || [];
+      const rawData = result?.data;
+      const nextLeads = Array.isArray(rawData)
+        ? rawData
+        : (Array.isArray(rawData?.leads) ? rawData.leads : []);
       setLeads(nextLeads);
       localStorage.setItem('startup-crm-leads', JSON.stringify(nextLeads));
       if (result.pagination) {

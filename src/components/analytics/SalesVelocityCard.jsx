@@ -8,9 +8,10 @@ import { formatRupees, calcGrowth, getPipelineValue, getAverageSalesCycle, getWo
 const SalesVelocityCard = memo(({ velocity = 0, prevVelocity = 0, leads = [] }) => {
   const growth = calcGrowth(velocity, prevVelocity);
   const isPos = growth >= 0;
+  const safeLeads = Array.isArray(leads) ? leads : [];
 
-  const openDeals = leads.filter(l => !['Won', 'Lost'].includes(l.status)).length;
-  const wonLeads = leads.filter(l => l.status === 'Won');
+  const openDeals = safeLeads.filter(l => !['Won', 'Lost'].includes(l.status)).length;
+  const wonLeads = safeLeads.filter(l => l.status === 'Won');
   const avgDeal = wonLeads.length
     ? Math.round(wonLeads.reduce((s, l) => s + (Number(l.value) || 0), 0) / wonLeads.length)
     : 0;

@@ -5,7 +5,8 @@ import React, { memo } from 'react';
  * Each stage rendered as a tapering trapezoid strip.
  */
 const FunnelChartCard = memo(({ data = [] }) => {
-  const maxVal = data[0]?.value || 1;
+  const safeData = Array.isArray(data) ? data : [];
+  const maxVal = safeData[0]?.value || 1;
 
   return (
     <div className="crm-card p-6">
@@ -20,9 +21,9 @@ const FunnelChartCard = memo(({ data = [] }) => {
         <div className="flex flex-col sm:flex-row gap-6 items-center">
           {/* Funnel visual */}
           <div className="w-full sm:w-1/2 flex flex-col items-center gap-0.5 py-2">
-            {data.map((stage, i) => {
+            {safeData.map((stage, i) => {
               const pct = Math.max(20, Math.round((stage.value / maxVal) * 100));
-              const topW = i === 0 ? 100 : Math.max(20, Math.round((data[i - 1].value / maxVal) * 100));
+              const topW = i === 0 ? 100 : Math.max(20, Math.round((safeData[i - 1].value / maxVal) * 100));
               const clip = `polygon(${(100 - topW) / 2}% 0%, ${100 - (100 - topW) / 2}% 0%, ${100 - (100 - pct) / 2}% 100%, ${(100 - pct) / 2}% 100%)`;
               return (
                 <div key={stage.name} className="w-full relative group" style={{ height: 36 }}>

@@ -19,8 +19,9 @@ const STATUS_TYPES = [
  * Generate deterministic Gantt bars from lead data.
  * Each task row gets 2-3 bars spread across the 30-day window.
  */
-function buildGanttData(leads) {
-  const seed = leads.length;
+function buildGanttData(leads = []) {
+  const safeLeads = Array.isArray(leads) ? leads : [];
+  const seed = safeLeads.length;
   const rows = {};
 
   TASKS.forEach((task, ti) => {

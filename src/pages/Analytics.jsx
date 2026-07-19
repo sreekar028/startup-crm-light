@@ -41,7 +41,16 @@ export default function Analytics() {
     topPerformers,
   } = useAnalytics();
 
-  const hasLeads = allLeads.length > 0;
+  const safeAllLeads = Array.isArray(allLeads) ? allLeads : [];
+  const safeLeads = Array.isArray(leads) ? leads : [];
+  const hasLeads = safeAllLeads.length > 0;
+  const safeStatusDistribution = Array.isArray(statusDistribution) ? statusDistribution : [];
+  const safeMonthlyLeads = Array.isArray(monthlyLeads) ? monthlyLeads : [];
+  const safeConversionByMonth = Array.isArray(conversionByMonth) ? conversionByMonth : [];
+  const safeRevenueByMonth = Array.isArray(revenueByMonth) ? revenueByMonth : [];
+  const safeLeadSourceStats = Array.isArray(leadSourceStats) ? leadSourceStats : [];
+  const safeFunnelData = Array.isArray(funnelData) ? funnelData : [];
+  const safeTopPerformers = Array.isArray(topPerformers) ? topPerformers : [];
 
   return (
     <div className="space-y-6">
@@ -67,26 +76,26 @@ export default function Analytics() {
 
           {/* ── 2. Distribution | Funnel ────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <PieChartCard data={statusDistribution} />
-            <FunnelChartCard data={funnelData} />
+            <PieChartCard data={safeStatusDistribution} />
+            <FunnelChartCard data={safeFunnelData} />
           </div>
 
           {/* ── 3. Bar | Line ───────────────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <BarChartCard data={monthlyLeads} />
-            <LineChartCard data={conversionByMonth} />
+            <BarChartCard data={safeMonthlyLeads} />
+            <LineChartCard data={safeConversionByMonth} />
           </div>
 
           {/* ── 4. Revenue | Sources ────────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RevenueChartCard data={revenueByMonth} />
-            <LeadSourceChart data={leadSourceStats} />
+            <RevenueChartCard data={safeRevenueByMonth} />
+            <LeadSourceChart data={safeLeadSourceStats} />
           </div>
 
           {/* ── 5. Gantt | Top Performers ───────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <DailySalesGantt leads={leads} />
-            <TopPerformersCard data={topPerformers} />
+            <TopPerformersCard data={safeTopPerformers} />
           </div>
 
           {/* ── 6. Forecast | Velocity ──────────────────────────────────────── */}
@@ -102,7 +111,7 @@ export default function Analytics() {
           {/* Footer */}
           <div className="text-center pb-2">
             <p className="text-[11px] text-slate-700">
-              Analytics calculated in real-time from {leads.length} lead{leads.length !== 1 ? 's' : ''} in the current period.
+              Analytics calculated in real-time from {safeLeads.length} lead{safeLeads.length !== 1 ? 's' : ''} in the current period.
             </p>
           </div>
 

@@ -110,6 +110,7 @@ export default function Profile() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                autoComplete="name"
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 placeholder="Your name"
                 required
@@ -147,6 +148,7 @@ export default function Profile() {
                 name="oldPassword"
                 value={formData.oldPassword}
                 onChange={handleChange}
+                autoComplete="current-password"
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 placeholder="Current password"
               />
@@ -159,6 +161,7 @@ export default function Profile() {
                 name="newPassword"
                 value={formData.newPassword}
                 onChange={handleChange}
+                autoComplete="new-password"
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 placeholder="New password"
               />
@@ -171,6 +174,7 @@ export default function Profile() {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                autoComplete="new-password"
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 placeholder="Confirm new password"
               />

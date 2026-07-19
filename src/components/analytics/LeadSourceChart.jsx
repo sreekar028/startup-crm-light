@@ -14,14 +14,15 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const LeadSourceChart = memo(({ data = [] }) => {
-  const total = data.reduce((s, d) => s + d.count, 0);
+  const safeData = Array.isArray(data) ? data : [];
+  const total = safeData.reduce((s, d) => s + (Number(d?.count) || 0), 0);
   return (
     <div className="crm-card p-6">
       <div className="mb-4">
         <h3 className="text-sm font-bold text-white">Acquisition Channels</h3>
         <p className="text-[11px] text-slate-500 mt-0.5">Distribution of opportunities by source and generation channel.</p>
       </div>
-      {data.length === 0 ? (
+      {safeData.length === 0 ? (
         <div className="flex items-center justify-center h-48 text-xs text-slate-600">No data</div>
       ) : (
         <div className="h-52">
@@ -35,7 +36,7 @@ const LeadSourceChart = memo(({ data = [] }) => {
               <Bar dataKey="count" radius={[0, 5, 5, 0]} maxBarSize={16} animationDuration={600}
                 label={{ position: 'right', fontSize: 11, fontWeight: 700, fill: '#94A3B8',
                   formatter: (v) => `${v} (${total > 0 ? Math.round((v / total) * 100) : 0}%)` }}>
-                {data.map((_, i) => <Cell key={i} fill={SOURCE_COLORS[i % SOURCE_COLORS.length]} />)}
+                {safeData.map((_, i) => <Cell key={i} fill={SOURCE_COLORS[i % SOURCE_COLORS.length]} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

@@ -27,41 +27,45 @@ import {
  */
 export default function useAnalytics() {
   const { leads: allLeads } = useLeads();
-  const leadSource = Array.isArray(allLeads) && allLeads.length > 0 ? allLeads : sampleLeads;
+  const normalizedAllLeads = Array.isArray(allLeads) ? allLeads : [];
+  const leadSource = normalizedAllLeads.length > 0 ? normalizedAllLeads : sampleLeads;
+  const safeLeadSource = Array.isArray(leadSource) ? leadSource : [];
 
   const [dateFilter, setDateFilter] = useState('all');
   const [customRange, setCustomRange] = useState(null);
 
   // Filtered leads for current period
   const leads = useMemo(
-    () => filterLeadsByDate(leadSource, dateFilter, customRange),
-    [leadSource, dateFilter, customRange]
+    () => filterLeadsByDate(safeLeadSource, dateFilter, customRange),
+    [safeLeadSource, dateFilter, customRange]
   );
 
   // Previous period leads for growth comparison
   const prevLeads = useMemo(
-    () => getPreviousPeriodLeads(leadSource, dateFilter === 'all' ? '30d' : dateFilter),
-    [leadSource, dateFilter]
+    () => getPreviousPeriodLeads(safeLeadSource, dateFilter === 'all' ? '30d' : dateFilter),
+    [safeLeadSource, dateFilter]
   );
 
   // ── KPI Summary ──────────────────────────────────────────────────────────────
 
   const kpis = useMemo(() => {
-    const total = leads.length;
-    const prevTotal = prevLeads.length;
+    const safeLeads = Array.isArray(leads) ? leads : [];
+    const safePrevLeads = Array.isArray(prevLeads) ? prevLeads : [];
+    const total = safeLeads.length;
+    const prevTotal = safePrevLeads.length;
 
-    const won = leads.filter(l => l.status === 'Won');
-    const prevWon = prevLeads.filter(l => l.status === 'Won');
+    const won = safeLeads.filter(l => l.status === 'Won');
+    const prevWon = safePrevLeads.filter(l => l.status === 'Won');
 
     const convRate = total ? Math.round((won.length / total) * 100) : 0;
     const prevConvRate = prevTotal ? Math.round((prevWon.length / prevTotal) * 100) : 0;
 
-    const pipelineVal = getPipelineValue(leads);
-    const wonRev = getWonRevenue(leads);
-    const prevWonRev = getWonRevenue(prevLeads);
+    const pipelineVal = getPipelineValue(safeLeads);
+    const wonRev = getWonRevenue(safeLeads);
+    const prevWonRev = getWonRevenue(safePrevLeads);
 
-    const avgCycle = getAverageSalesCycle(leads);
-    const lostRate = getLostRate(leads);
+    const avgCycle = getAverageSalesCycle(safeLeads);
+    const lostRate = getLostRate(safeLeads);
 
     return {
       totalLeads: { value: total, growth: calcGrowth(total, prevTotal) },
@@ -99,6 +103,7 @@ export default function useAnalytics() {
 
   return {
     leads,
+    allLeads: leadSource,
     leadSource,
     dateFilter,
     handleFilterChange,

@@ -27,9 +27,10 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const PieChartCard = memo(({ data = [] }) => {
+  const safeData = Array.isArray(data) ? data : [];
   const [activeIndex, setActiveIndex] = useState(0);
-  const total = data.reduce((s, d) => s + d.value, 0);
-  const enriched = data.map(d => ({ ...d, total }));
+  const total = safeData.reduce((s, d) => s + (Number(d?.value) || 0), 0);
+  const enriched = safeData.map(d => ({ ...d, total }));
   const onEnter = useCallback((_, i) => setActiveIndex(i), []);
 
   return (

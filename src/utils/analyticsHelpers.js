@@ -7,6 +7,8 @@
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+const normalizeLeads = (leads) => (Array.isArray(leads) ? leads : []);
+
 // ─── Date Utilities ────────────────────────────────────────────────────────────
 
 /**
@@ -45,7 +47,8 @@ export function getDateRange(filter) {
  * Filter leads by date range based on createdAt.
  */
 export function filterLeadsByDate(leads = [], filter = 'all', customRange = null) {
-  if (filter === 'all') return leads;
+  const safeLeads = normalizeLeads(leads);
+  if (filter === 'all') return safeLeads;
 
   let start, end;
   if (filter === 'custom' && customRange) {
@@ -55,7 +58,7 @@ export function filterLeadsByDate(leads = [], filter = 'all', customRange = null
     ({ start, end } = getDateRange(filter));
   }
 
-  return leads.filter(lead => {
+  return safeLeads.filter(lead => {
     const d = new Date(lead.createdAt);
     return !isNaN(d) && d >= start && d <= end;
   });
@@ -65,12 +68,13 @@ export function filterLeadsByDate(leads = [], filter = 'all', customRange = null
  * Get the "previous period" leads for comparison.
  */
 export function getPreviousPeriodLeads(leads = [], filter = '30d') {
+  const safeLeads = normalizeLeads(leads);
   const { start, end } = getDateRange(filter);
   const duration = end - start;
   const prevEnd = new Date(start.getTime() - 1);
   const prevStart = new Date(prevEnd.getTime() - duration);
 
-  return leads.filter(lead => {
+  return safeLeads.filter(lead => {
     const d = new Date(lead.createdAt);
     return !isNaN(d) && d >= prevStart && d <= prevEnd;
   });
@@ -80,9 +84,10 @@ export function getPreviousPeriodLeads(leads = [], filter = '30d') {
  * Compute last N months labels ending at the latest lead date or today.
  */
 function getLast6Months(leads = []) {
+  const safeLeads = normalizeLeads(leads);
   let refDate = new Date('2026-06-26');
-  if (leads.length > 0) {
-    const dates = leads.map(l => new Date(l.createdAt)).filter(d => !isNaN(d));
+  if (safeLeads.length > 0) {
+    const dates = safeLeads.map(l => new Date(l.createdAt)).filter(d => !isNaN(d));
     if (dates.length) refDate = new Date(Math.max(...dates));
   }
 
@@ -116,7 +121,8 @@ export function formatRupees(value = 0) {
  * Total pipeline value = sum of `value` field for all non-Lost leads.
  */
 export function getPipelineValue(leads = []) {
-  return leads
+  const safeLeads = normalizeLeads(leads);
+  return safeLeads
     .filter(l => l.status !== 'Lost')
     .reduce((sum, l) => sum + (Number(l.value) || 0), 0);
 }
@@ -125,7 +131,8 @@ export function getPipelineValue(leads = []) {
  * Total won revenue = sum of `value` for Won leads.
  */
 export function getWonRevenue(leads = []) {
-  return leads
+  const safeLeads = normalizeLeads(leads);
+  return safeLeads
     .filter(l => l.status === 'Won')
     .reduce((sum, l) => sum + (Number(l.value) || 0), 0);
 }
@@ -134,7 +141,8 @@ export function getWonRevenue(leads = []) {
  * Average sales cycle in days (wonAt - createdAt for Won leads).
  */
 export function getAverageSalesCycle(leads = []) {
-  const wonLeads = leads.filter(l => l.status === 'Won' && l.wonAt && l.createdAt);
+  const safeLeads = normalizeLeads(leads);
+  const wonLeads = safeLeads.filter(l => l.status === 'Won' && l.wonAt && l.createdAt);
   if (!wonLeads.length) return 14;
 
   const totalDays = wonLeads.reduce((sum, l) => {
@@ -149,14 +157,16 @@ export function getAverageSalesCycle(leads = []) {
  * Lost rate as a percentage.
  */
 export function getLostRate(leads = []) {
-  if (!leads.length) return 12;
-  const lost = leads.filter(l => l.status === 'Lost').length;
-  return Math.round((lost / leads.length) * 100);
+  const safeLeads = normalizeLeads(leads);
+  if (!safeLeads.length) return 12;
+  const lost = safeLeads.filter(l => l.status === 'Lost').length;
+  return Math.round((lost / safeLeads.length) * 100);
 }
 
 // ─── Status Distribution (Pie Chart) ─────────────────────────────────────────
 
 export function getStatusDistribution(leads = []) {
+  const safeLeads = normalizeLeads(leads);
   const STATUS_COLORS = {
     New: '#94A3B8',
     Contacted: '#2563EB',
@@ -167,7 +177,7 @@ export function getStatusDistribution(leads = []) {
   };
 
   const counts = {};
-  leads.forEach(l => {
+  safeLeads.forEach(l => {
     counts[l.status] = (counts[l.status] || 0) + 1;
   });
 
@@ -183,9 +193,10 @@ export function getStatusDistribution(leads = []) {
 // ─── Monthly Leads (Bar Chart) ────────────────────────────────────────────────
 
 export function getMonthlyLeads(leads = []) {
-  const months = getLast6Months(leads);
+  const safeLeads = normalizeLeads(leads);
+  const months = getLast6Months(safeLeads);
   return months.map(m => {
-    const count = leads.filter(l => {
+    const count = safeLeads.filter(l => {
       const d = new Date(l.createdAt);
       return !isNaN(d) && d.getMonth() === m.month && d.getFullYear() === m.year;
     }).length;
@@ -196,9 +207,10 @@ export function getMonthlyLeads(leads = []) {
 // ─── Conversion by Month (Line Chart) ────────────────────────────────────────
 
 export function getConversionByMonth(leads = []) {
-  const months = getLast6Months(leads);
+  const safeLeads = normalizeLeads(leads);
+  const months = getLast6Months(safeLeads);
   return months.map(m => {
-    const monthly = leads.filter(l => {
+    const monthly = safeLeads.filter(l => {
       const d = new Date(l.createdAt);
       return !isNaN(d) && d.getMonth() === m.month && d.getFullYear() === m.year;
     });
@@ -211,9 +223,10 @@ export function getConversionByMonth(leads = []) {
 // ─── Revenue by Month (Area Chart) ───────────────────────────────────────────
 
 export function getRevenueByMonth(leads = []) {
-  const months = getLast6Months(leads);
+  const safeLeads = normalizeLeads(leads);
+  const months = getLast6Months(safeLeads);
   return months.map(m => {
-    const revenue = leads
+    const revenue = safeLeads
       .filter(l => {
         const d = new Date(l.wonAt || l.createdAt);
         return l.status === 'Won' && !isNaN(d) && d.getMonth() === m.month && d.getFullYear() === m.year;
@@ -226,8 +239,9 @@ export function getRevenueByMonth(leads = []) {
 // ─── Lead Source Stats (Horizontal Bar) ──────────────────────────────────────
 
 export function getLeadSourceStats(leads = []) {
+  const safeLeads = normalizeLeads(leads);
   const counts = {};
-  leads.forEach(l => {
+  safeLeads.forEach(l => {
     if (l.source) counts[l.source] = (counts[l.source] || 0) + 1;
   });
 
@@ -239,6 +253,7 @@ export function getLeadSourceStats(leads = []) {
 // ─── Funnel Data ──────────────────────────────────────────────────────────────
 
 export function getFunnelData(leads = []) {
+  const safeLeads = normalizeLeads(leads);
   const stageMap = {
     New: 0,
     Contacted: 1,
@@ -250,7 +265,7 @@ export function getFunnelData(leads = []) {
 
   // Count leads that have ever reached each stage (cumulative funnel)
   const reachedStage = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
-  leads.forEach(l => {
+  safeLeads.forEach(l => {
     const stage = stageMap[l.status];
     if (stage === undefined || stage < 0) return;
     for (let i = 0; i <= stage; i++) {
@@ -260,7 +275,7 @@ export function getFunnelData(leads = []) {
   });
 
   // Also count lost leads in their effective funnel position
-  leads
+  safeLeads
     .filter(l => l.status === 'Lost')
     .forEach(l => {
       // Treat as contacted at minimum
@@ -287,13 +302,14 @@ export function getFunnelData(leads = []) {
 // ─── Sales Velocity ───────────────────────────────────────────────────────────
 
 export function getSalesVelocity(leads = []) {
-  const total = leads.length || 1;
-  const won = leads.filter(l => l.status === 'Won');
+  const safeLeads = normalizeLeads(leads);
+  const total = safeLeads.length || 1;
+  const won = safeLeads.filter(l => l.status === 'Won');
   const winRate = won.length / total;
   const avgDealSize = won.length
     ? won.reduce((s, l) => s + (Number(l.value) || 0), 0) / won.length
     : 42000;
-  const avgCycle = getAverageSalesCycle(leads) || 30;
+  const avgCycle = getAverageSalesCycle(safeLeads) || 30;
   const velocity = (total * winRate * avgDealSize) / avgCycle;
   return Math.round(velocity);
 }
@@ -301,7 +317,8 @@ export function getSalesVelocity(leads = []) {
 // ─── Forecast Revenue ─────────────────────────────────────────────────────────
 
 export function getForecastRevenue(leads = []) {
-  const monthly = getRevenueByMonth(leads);
+  const safeLeads = normalizeLeads(leads);
+  const monthly = getRevenueByMonth(safeLeads);
   const nonZero = monthly.filter(m => m.Revenue > 0);
   if (!nonZero.length) return { forecast: 520000, confidence: 72, trend: 12 };
 
@@ -317,8 +334,9 @@ export function getForecastRevenue(leads = []) {
 // ─── Top Performers ───────────────────────────────────────────────────────────
 
 export function getTopPerformers(leads = []) {
+  const safeLeads = normalizeLeads(leads);
   const ownerMap = {};
-  leads
+  safeLeads
     .filter(l => l.status === 'Won' && l.owner)
     .forEach(l => {
       if (!ownerMap[l.owner]) ownerMap[l.owner] = { name: l.owner, revenue: 0, deals: 0 };
@@ -334,11 +352,12 @@ export function getTopPerformers(leads = []) {
 // ─── Activity Heatmap ─────────────────────────────────────────────────────────
 
 export function getActivityHeatmapData(leads = []) {
+  const safeLeads = normalizeLeads(leads);
   // Build a 12-week × 7-day grid (last ~84 days)
   const today = new Date('2026-06-26');
   const dayMap = {};
 
-  leads.forEach(lead => {
+  safeLeads.forEach(lead => {
     // Count lead creation
     const created = new Date(lead.createdAt);
     if (!isNaN(created)) {

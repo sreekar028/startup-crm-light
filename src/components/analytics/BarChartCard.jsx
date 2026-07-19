@@ -12,7 +12,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const BarChartCard = memo(({ data = [] }) => {
-  const maxVal = Math.max(...data.map(d => d.Leads), 0);
+  const safeData = Array.isArray(data) ? data : [];
+  const maxVal = safeData.length ? Math.max(...safeData.map(d => Number(d?.Leads) || 0), 0) : 0;
   return (
     <div className="crm-card p-6">
       <div className="mb-4">
@@ -21,14 +22,14 @@ const BarChartCard = memo(({ data = [] }) => {
       </div>
       <div className="h-52">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 10, right: 5, left: -28, bottom: 0 }}>
+          <BarChart data={safeData} margin={{ top: 10, right: 5, left: -28, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1A2850" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 600, fill: '#475569' }} />
             <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 11, fontWeight: 600, fill: '#475569' }} />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(37,99,235,0.06)' }} />
             <Bar dataKey="Leads" radius={[5, 5, 0, 0]} maxBarSize={32} animationDuration={600}>
-              {data.map((d, i) => (
-                <Cell key={i} fill={d.Leads === maxVal ? '#2563EB' : '#1E3A6E'} />
+              {safeData.map((d, i) => (
+                <Cell key={i} fill={(Number(d?.Leads) || 0) === maxVal ? '#2563EB' : '#1E3A6E'} />
               ))}
             </Bar>
           </BarChart>

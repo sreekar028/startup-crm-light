@@ -13,7 +13,8 @@ const RANK_META = [
 const BAR_COLORS = ['#F59E0B', '#94A3B8', '#F97316', '#7C3AED', '#2563EB'];
 
 const TopPerformersCard = memo(({ data = [] }) => {
-  const maxRev = data[0]?.revenue || 1;
+  const safeData = Array.isArray(data) ? data : [];
+  const maxRev = safeData[0]?.revenue || 1;
 
   return (
     <div className="crm-card p-6 h-full flex flex-col">
@@ -22,11 +23,11 @@ const TopPerformersCard = memo(({ data = [] }) => {
         <p className="text-[11px] text-slate-500 mt-0.5">Ranking sales representatives by closed won deal revenue.</p>
       </div>
 
-      {data.length === 0 ? (
+      {safeData.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-xs text-slate-600">No closed deals yet</div>
       ) : (
         <div className="flex-1 space-y-4">
-          {data.map((rep, i) => {
+          {safeData.map((rep, i) => {
             const meta = RANK_META[i] || RANK_META[4];
             const Icon = meta.Icon;
             const barPct = Math.max(10, Math.round((rep.revenue / maxRev) * 100));

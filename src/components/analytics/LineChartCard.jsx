@@ -12,7 +12,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const LineChartCard = memo(({ data = [] }) => {
-  const avg = data.length ? Math.round(data.reduce((s, d) => s + (d['Conversion Rate'] || 0), 0) / data.length) : 0;
+  const safeData = Array.isArray(data) ? data : [];
+  const avg = safeData.length ? Math.round(safeData.reduce((s, d) => s + (Number(d?.['Conversion Rate']) || 0), 0) / safeData.length) : 0;
   return (
     <div className="crm-card p-6">
       <div className="mb-4">
@@ -21,7 +22,7 @@ const LineChartCard = memo(({ data = [] }) => {
       </div>
       <div className="h-52">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 10, right: 15, left: -28, bottom: 0 }}>
+          <LineChart data={safeData} margin={{ top: 10, right: 15, left: -28, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1A2850" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 600, fill: '#475569' }} />
             <YAxis axisLine={false} tickLine={false} domain={[0, 100]}
