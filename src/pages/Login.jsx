@@ -35,11 +35,10 @@ export default function Login() {
         <button
           type="button"
           onClick={toggleTheme}
-          className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition-colors ${isDarkMode ? 'border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'}`}
+          className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${isDarkMode ? 'border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'}`}
           aria-label="Toggle theme"
         >
-          {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-          {isDarkMode ? 'Light mode' : 'Dark mode'}
+          {isDarkMode ? '☀️' : '🌙'}
         </button>
       </div>
 
