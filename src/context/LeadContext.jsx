@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import * as leadService from '../services/leadService.js';
 import toast from 'react-hot-toast';
 
@@ -9,9 +9,25 @@ const LeadContext = createContext(null);
  * all CRUD operations to the Express REST API via leadService.
  */
 export function LeadProvider({ children }) {
-  const [leads, setLeads] = useState([]);
+  const [leads, setLeads] = useState(() => {
+    try {
+      const savedLeads = localStorage.getItem('startup-crm-leads');
+      return savedLeads ? JSON.parse(savedLeads) : [];
+    } catch (error) {
+      console.warn('Unable to read cached leads:', error);
+      return [];
+    }
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 100, pages: 1 });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('startup-crm-leads', JSON.stringify(leads));
+    } catch (error) {
+      console.warn('Unable to save leads cache:', error);
+    }
+  }, [leads]);
 
   /**
    * Fetch all leads (with optional filters).
@@ -21,7 +37,9 @@ export function LeadProvider({ children }) {
     setIsLoading(true);
     try {
       const result = await leadService.getLeads({ limit: 100, ...params });
-      setLeads(result.data || []);
+      const nextLeads = result.data || [];
+      setLeads(nextLeads);
+      localStorage.setItem('startup-crm-leads', JSON.stringify(nextLeads));
       if (result.pagination) {
         setPagination(result.pagination);
       }
