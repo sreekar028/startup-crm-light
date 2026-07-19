@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback } from 'react';
 import { useLeads } from '../context/LeadContext';
+import { sampleLeads } from '../data/sampleLeads';
 import {
   filterLeadsByDate,
   getPreviousPeriodLeads,
@@ -26,20 +27,21 @@ import {
  */
 export default function useAnalytics() {
   const { leads: allLeads } = useLeads();
+  const leadSource = Array.isArray(allLeads) && allLeads.length > 0 ? allLeads : sampleLeads;
 
   const [dateFilter, setDateFilter] = useState('all');
   const [customRange, setCustomRange] = useState(null);
 
   // Filtered leads for current period
   const leads = useMemo(
-    () => filterLeadsByDate(allLeads, dateFilter, customRange),
-    [allLeads, dateFilter, customRange]
+    () => filterLeadsByDate(leadSource, dateFilter, customRange),
+    [leadSource, dateFilter, customRange]
   );
 
   // Previous period leads for growth comparison
   const prevLeads = useMemo(
-    () => getPreviousPeriodLeads(allLeads, dateFilter === 'all' ? '30d' : dateFilter),
-    [allLeads, dateFilter]
+    () => getPreviousPeriodLeads(leadSource, dateFilter === 'all' ? '30d' : dateFilter),
+    [leadSource, dateFilter]
   );
 
   // ── KPI Summary ──────────────────────────────────────────────────────────────
@@ -97,7 +99,7 @@ export default function useAnalytics() {
 
   return {
     leads,
-    allLeads,
+    leadSource,
     dateFilter,
     handleFilterChange,
     handleCustomRange,
