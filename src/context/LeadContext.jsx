@@ -9,26 +9,18 @@ const LeadContext = createContext(null);
  * all CRUD operations to the Express REST API via leadService.
  */
 export function LeadProvider({ children }) {
-  const [leads, setLeads] = useState(() => {
-    try {
-      const savedLeads = localStorage.getItem('startup-crm-leads');
-      const parsed = savedLeads ? JSON.parse(savedLeads) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      console.warn('Unable to read cached leads:', error);
-      return [];
-    }
-  });
+  const [leads, setLeads] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 100, pages: 1 });
 
+  // Auto-fetch leads on mount if the user is already authenticated (token exists)
   useEffect(() => {
-    try {
-      localStorage.setItem('startup-crm-leads', JSON.stringify(leads));
-    } catch (error) {
-      console.warn('Unable to save leads cache:', error);
+    const token = localStorage.getItem('crm-token');
+    if (token) {
+      fetchLeads();
     }
-  }, [leads]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Fetch all leads (with optional filters).

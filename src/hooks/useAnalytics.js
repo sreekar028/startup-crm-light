@@ -78,18 +78,25 @@ export default function useAnalytics() {
   }, [leads, prevLeads]);
 
   // ── Chart Data ───────────────────────────────────────────────────────────────
+  // Always guard with safeArr before passing to helper functions
+  // This prevents crashes when leads transitions from undefined → array during API fetch
 
-  const statusDistribution = useMemo(() => getStatusDistribution(leads), [leads]);
-  const monthlyLeads = useMemo(() => getMonthlyLeads(leads), [leads]);
-  const conversionByMonth = useMemo(() => getConversionByMonth(leads), [leads]);
-  const revenueByMonth = useMemo(() => getRevenueByMonth(leads), [leads]);
-  const leadSourceStats = useMemo(() => getLeadSourceStats(leads), [leads]);
-  const funnelData = useMemo(() => getFunnelData(leads), [leads]);
-  const salesVelocity = useMemo(() => getSalesVelocity(leads), [leads]);
-  const prevSalesVelocity = useMemo(() => getSalesVelocity(prevLeads), [prevLeads]);
-  const forecast = useMemo(() => getForecastRevenue(leads), [leads]);
-  const topPerformers = useMemo(() => getTopPerformers(leads), [leads]);
-  const heatmapData = useMemo(() => getActivityHeatmapData(leads), [leads]);
+  const safeLeadsForCharts = useMemo(
+    () => (Array.isArray(leads) ? leads : []),
+    [leads]
+  );
+
+  const statusDistribution = useMemo(() => getStatusDistribution(safeLeadsForCharts), [safeLeadsForCharts]);
+  const monthlyLeads = useMemo(() => getMonthlyLeads(safeLeadsForCharts), [safeLeadsForCharts]);
+  const conversionByMonth = useMemo(() => getConversionByMonth(safeLeadsForCharts), [safeLeadsForCharts]);
+  const revenueByMonth = useMemo(() => getRevenueByMonth(safeLeadsForCharts), [safeLeadsForCharts]);
+  const leadSourceStats = useMemo(() => getLeadSourceStats(safeLeadsForCharts), [safeLeadsForCharts]);
+  const funnelData = useMemo(() => getFunnelData(safeLeadsForCharts), [safeLeadsForCharts]);
+  const salesVelocity = useMemo(() => getSalesVelocity(safeLeadsForCharts), [safeLeadsForCharts]);
+  const prevSalesVelocity = useMemo(() => getSalesVelocity(Array.isArray(prevLeads) ? prevLeads : []), [prevLeads]);
+  const forecast = useMemo(() => getForecastRevenue(safeLeadsForCharts), [safeLeadsForCharts]);
+  const topPerformers = useMemo(() => getTopPerformers(safeLeadsForCharts), [safeLeadsForCharts]);
+  const heatmapData = useMemo(() => getActivityHeatmapData(safeLeadsForCharts), [safeLeadsForCharts]);
 
   const handleFilterChange = useCallback((filter) => {
     setDateFilter(filter);
