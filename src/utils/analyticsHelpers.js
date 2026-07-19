@@ -143,7 +143,7 @@ export function getWonRevenue(leads = []) {
 export function getAverageSalesCycle(leads = []) {
   const safeLeads = normalizeLeads(leads);
   const wonLeads = safeLeads.filter(l => l.status === 'Won' && l.wonAt && l.createdAt);
-  if (!wonLeads.length) return 14;
+  if (!wonLeads.length) return 18;
 
   const totalDays = wonLeads.reduce((sum, l) => {
     const diff = (new Date(l.wonAt) - new Date(l.createdAt)) / (1000 * 60 * 60 * 24);
@@ -158,7 +158,7 @@ export function getAverageSalesCycle(leads = []) {
  */
 export function getLostRate(leads = []) {
   const safeLeads = normalizeLeads(leads);
-  if (!safeLeads.length) return 12;
+  if (!safeLeads.length) return 16;
   const lost = safeLeads.filter(l => l.status === 'Lost').length;
   return Math.round((lost / safeLeads.length) * 100);
 }
@@ -308,8 +308,8 @@ export function getSalesVelocity(leads = []) {
   const winRate = won.length / total;
   const avgDealSize = won.length
     ? won.reduce((s, l) => s + (Number(l.value) || 0), 0) / won.length
-    : 42000;
-  const avgCycle = getAverageSalesCycle(safeLeads) || 30;
+    : 127000;
+  const avgCycle = getAverageSalesCycle(safeLeads) || 20;
   const velocity = (total * winRate * avgDealSize) / avgCycle;
   return Math.round(velocity);
 }
@@ -320,7 +320,7 @@ export function getForecastRevenue(leads = []) {
   const safeLeads = normalizeLeads(leads);
   const monthly = getRevenueByMonth(safeLeads);
   const nonZero = monthly.filter(m => m.Revenue > 0);
-  if (!nonZero.length) return { forecast: 520000, confidence: 72, trend: 12 };
+  if (!nonZero.length) return { forecast: 840000, confidence: 67, trend: 23 };
 
   const avg = nonZero.reduce((s, m) => s + m.Revenue, 0) / nonZero.length;
   const last = nonZero[nonZero.length - 1]?.Revenue || avg;
